@@ -5,7 +5,7 @@ using TMPro;
 
 public class PlayerControlador : MonoBehaviour
 {
-    CharacterController m_Character; // A reference to the ThirdPersonCharacter on the object
+ //   CharacterController m_Character; // A reference to the ThirdPersonCharacter on the object
     private Transform m_Cam;                  // A reference to the main camera in the scenes transform
     private Vector3 m_CamForward;             // The current forward direction of the camera
     private Vector3 m_Move;
@@ -20,11 +20,12 @@ public class PlayerControlador : MonoBehaviour
 
     //brinco
     private float playerSpeed = 2.0f;
-    public float jumpHeight = 3.8f;
+    public float jumpHeight = 1.6f;
     private float gravityValue = -5.8f;
     private Vector3 playerVelocity;
     private bool groundedPlayer;
-
+    private bool IsGrounded;
+   public  GameObject flecha;
 
 
 
@@ -37,10 +38,10 @@ public class PlayerControlador : MonoBehaviour
     {
         if (other.gameObject.tag == "malo")
         {
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
-            playerVelocity.y += gravityValue * Time.deltaTime;
-            m_Character.Move(playerVelocity * Time.deltaTime);
-            m_Animator.SetTrigger("brincar");
+
+            //  m_Animator.SetTrigger("brincar");
+            //    m_Character.Move(Vector3.up.normalized * Time.fixedDeltaTime*20);
+            m_Rigidbody.AddForce(Vector3.up * Time.deltaTime * 3000, ForceMode.Force);
 
         }
     }
@@ -48,42 +49,37 @@ public class PlayerControlador : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Time.timeScale = scrollBar;
+    //    m_Rigidbody.isKinematic = true;
         //   Screen.fullScreen = !Screen.fullScreen; 
         //https://docs.unity3d.com/ScriptReference/DeviceType.html
         // El siguiente para ve en andrioid etc si sirve pero en faceboo se sierra
         // txtCliente.SetText("Cliente: " + SystemInfo.operatingSystem);
         botonOprimido = false;
        
-        // get the transform of the main camera
-        if (Camera.main != null)
-        {
+      
             m_Cam = Camera.main.transform;
-        }
-        else
-        {
-            Debug.LogWarning(
-                "Warning: no main camera found. Third person character needs a Camera tagged \"MainCamera\", for camera-relative controls.", gameObject);
-            // we use self-relative controls in this case, which probably isn't what the user wants, but hey, we warned them!
-        }
+        
+     
         //   m_Rigidbody = GetComponent<Rigidbody>();
         m_Animator = GetComponent<Animator>();
-        m_Character = GetComponent<CharacterController>();
+     //   m_Character = GetComponent<CharacterController>();
         m_Rigidbody = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-
+        print("esta en tierrraaa " + IsGrounded);
    
-
+        /*
 
         groundedPlayer = m_Character.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
         }
+
+        */
         // read inputs
          float h = UltimateJoystick.GetHorizontalAxis( "Movimiento" );
       //  float h = Input.GetAxis("Horizontal");
@@ -102,32 +98,35 @@ public class PlayerControlador : MonoBehaviour
         bool isWalking = hasHorizontalInput || hasVerticalInput;
 
         m_Animator.SetBool("IsWalking", isWalking);
+   
+        m_Move.Normalize();
   
 
         Vector3 desiredForward = Vector3.RotateTowards(transform.forward, m_Move, turnSpeed * Time.deltaTime, 0f);
 
 
         m_Rotation = Quaternion.LookRotation(desiredForward);
-       
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        m_Character.Move(playerVelocity * Time.deltaTime);
-        m_Rotation = Quaternion.LookRotation(desiredForward);
+    
 
 
-        if (ControlFreak2.CF2Input.GetButtonDown("Jump"))
+        if (ControlFreak2.CF2Input.GetButtonDown("Jump")&& IsGrounded)
         {
+       
 
-            if (m_Character.isGrounded)
-            {
-                print("Tocaste la perra pantalla");
-                playerVelocity.y += Mathf.Sqrt(jumpHeight * -5.0f * gravityValue);
 
-                playerVelocity.y += gravityValue * Time.deltaTime;
+            print("Tocaste la perra pantalla");
+            //     playerVelocity.y += Mathf.Sqrt(jumpHeight * -2.0f * gravityValue);
 
-                m_Character.Move(playerVelocity * Time.deltaTime);
+            //   playerVelocity.y += gravityValue * Time.deltaTime;
+            //     m_Move.x *= m_Move.y * Time.deltaTime;
+
+           
+                m_Rigidbody.AddForce(Vector3.up * 700, ForceMode.Force);
+                //  m_Character.Move(playerVelocity * Time.deltaTime);
                 m_Animator.SetTrigger("brincar");
 
-            }
+           
+           
 
 
 
@@ -139,20 +138,34 @@ public class PlayerControlador : MonoBehaviour
 
     }
 
+
+    private void OnCollisionStay(Collision collision)
+    {
+        print(" Entra al trigger");
+        if (collision.transform.tag == "Ground")
+        {
+            IsGrounded = true;
+            Debug.Log("Grounded");
+        }
+        else
+        {
+            IsGrounded = false;
+            Debug.Log("Not Grounded!");
+        }
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        IsGrounded = false;
+        Debug.Log("Not Grounded!");
+    }
+
+
     void OnAnimatorMove()
     {
-
-        // Changes the height position of the player..
-       
-
-        m_Rigidbody.MoveRotation(m_Rotation);
-
-        //  m_Movement.y -= 9f * Time.deltaTime;
-        m_Move.y -= 80f * Time.deltaTime;
-
-       m_Character.Move(m_Move * 4 * Time.deltaTime);
-        //  m_Rigidbody.MovePosition(m_Rigidbody.position +m_Move * Time.deltaTime );
-
+        
+            m_Rigidbody.MovePosition(m_Rigidbody.position + m_Move * m_Animator.deltaPosition.magnitude);
+            m_Rigidbody.MoveRotation(m_Rotation);
+        
 
     }
 
@@ -177,12 +190,17 @@ public class PlayerControlador : MonoBehaviour
 
     public void brincar()
     {
-        playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
 
-        playerVelocity.y += gravityValue * Time.deltaTime;
+        if (IsGrounded)
+        {
 
-        m_Character.Move(playerVelocity * Time.deltaTime);
-        m_Animator.SetTrigger("brincar");
+
+            m_Rigidbody.AddForce(flecha.transform.forward*300, ForceMode.Force);
+            m_Animator.SetTrigger("brincar");
+  
+        }
+
+     
     }
 
 
