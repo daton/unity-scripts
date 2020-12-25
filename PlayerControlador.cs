@@ -16,31 +16,24 @@ public class PlayerControlador : MonoBehaviour
     Quaternion m_Rotation = Quaternion.identity;
 
     public TextMeshProUGUI txtCliente;
-    bool botonOprimido=false;
+
 
     //brinco
-    private float playerSpeed = 2.0f;
+
     public float jumpHeight = 1.6f;
-    private float gravityValue = -5.8f;
-    private Vector3 playerVelocity;
-    private bool groundedPlayer;
+
     private bool IsGrounded;
    public  GameObject flecha;
 
 
 
-    private float waitTime = 2.0f;
-    private float timer = 0.0f;
-    private float visualTime = 0.0f;
-    private float scrollBar = 1.0f;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "malo")
         {
 
-            //  m_Animator.SetTrigger("brincar");
-            //    m_Character.Move(Vector3.up.normalized * Time.fixedDeltaTime*20);
+  
             m_Rigidbody.AddForce(Vector3.up * Time.deltaTime * 3000, ForceMode.Force);
 
         }
@@ -54,7 +47,7 @@ public class PlayerControlador : MonoBehaviour
         //https://docs.unity3d.com/ScriptReference/DeviceType.html
         // El siguiente para ve en andrioid etc si sirve pero en faceboo se sierra
         // txtCliente.SetText("Cliente: " + SystemInfo.operatingSystem);
-        botonOprimido = false;
+    
        
       
             m_Cam = Camera.main.transform;
@@ -71,16 +64,7 @@ public class PlayerControlador : MonoBehaviour
     {
         print("esta en tierrraaa " + IsGrounded);
    
-        /*
-
-        groundedPlayer = m_Character.isGrounded;
-        if (groundedPlayer && playerVelocity.y < 0)
-        {
-            playerVelocity.y = 0f;
-        }
-
-        */
-        // read inputs
+     
          float h = UltimateJoystick.GetHorizontalAxis( "Movimiento" );
       //  float h = Input.GetAxis("Horizontal");
       float v = UltimateJoystick.GetVerticalAxis( "Movimiento" );
@@ -115,14 +99,10 @@ public class PlayerControlador : MonoBehaviour
 
 
             print("Tocaste la perra pantalla");
-            //     playerVelocity.y += Mathf.Sqrt(jumpHeight * -2.0f * gravityValue);
-
-            //   playerVelocity.y += gravityValue * Time.deltaTime;
-            //     m_Move.x *= m_Move.y * Time.deltaTime;
-
+        
            
                 m_Rigidbody.AddForce(Vector3.up * 700, ForceMode.Force);
-                //  m_Character.Move(playerVelocity * Time.deltaTime);
+             
                 m_Animator.SetTrigger("brincar");
 
            
@@ -195,7 +175,7 @@ public class PlayerControlador : MonoBehaviour
         {
 
 
-            m_Rigidbody.AddForce(flecha.transform.forward*300, ForceMode.Force);
+            m_Rigidbody.AddForce(flecha.transform.forward*500, ForceMode.Force);
             m_Animator.SetTrigger("brincar");
   
         }
